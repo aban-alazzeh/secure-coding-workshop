@@ -4,15 +4,6 @@ This lab focuses on fixing improper input validation in a small, runnable API. T
 
 You are only allowed to modify `validator.py`. Do not change the tests and do not add new dependencies.
 
-The lab folder must look exactly like this:
-cwe-20-input-validation/
-├─ README.md
-├─ requirements.txt
-├─ app.py
-├─ validator.py
-└─ tests/
-   └─ test_validation.py
-
 Setup instructions (run all commands from inside the `cwe-20-input-validation` directory):
 
 Linux or macOS:
