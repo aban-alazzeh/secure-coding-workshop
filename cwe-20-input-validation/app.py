@@ -7,6 +7,7 @@ DATA = [
     {"id": 1, "service": "api", "level": "INFO", "timestamp": "2026-01-20T10:00:00Z", "message": "started"},
     {"id": 2, "service": "worker", "level": "WARN", "timestamp": "2026-01-21T11:00:00Z", "message": "slow job"},
     {"id": 3, "service": "api", "level": "ERROR", "timestamp": "2026-01-22T12:00:00Z", "message": "timeout"},
+    {"id": 4, "service": "worker", "level": "WARN", "timestamp": "2026-01-22T12:00:00Z", "message": "fast job"},
 ]
 
 @app.post("/search")
