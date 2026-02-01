@@ -1,13 +1,13 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from sanitizer import sanitize_html
 
-app = FastAPI(title="CWE-79 Lab: Stored Cross-Site Scripting (XSS)")
+app = FastAPI(title="CWE-79 Lab: Build Your Own Sanitizer")
 
 templates = Jinja2Templates(directory="templates")
 
 # In-memory storage for comments (simulates a database)
-# In a real app, this would be a database table
 comments_db = []
 
 @app.get("/comment", response_class=HTMLResponse)
@@ -21,13 +21,16 @@ def show_form(request: Request):
 @app.post("/comment", response_class=HTMLResponse)
 def submit_comment(request: Request, comment: str = Form(...)):
     """
-    INTENTIONALLY VULNERABLE: 
-    - User input is stored directly without sanitization
-    - Template renders with | safe filter, executing any HTML/JS
-    - This creates a STORED XSS vulnerability affecting all users
+    Process user comments with sanitization.
+    
+    This uses YOUR sanitize_html() function from sanitizer.py
+    If your sanitizer works correctly, XSS attacks will be prevented!
     """
-    # Store the comment directly without any sanitization
-    comments_db.append(comment)
+    # Use the student's sanitizer
+    sanitized_comment = sanitize_html(comment)
+    
+    # Store the sanitized comment
+    comments_db.append(sanitized_comment)
     
     return templates.TemplateResponse(
         "comment.html",
