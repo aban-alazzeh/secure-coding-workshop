@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>CWE-79 Stored XSS Lab</title>
+  <title>CWE-79 Build Your Own Sanitizer</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -44,8 +44,8 @@
       border-radius: 3px;
     }
     .info {
-      background: #fff3cd;
-      border: 1px solid #ffc107;
+      background: #e3f2fd;
+      border: 1px solid #2196f3;
       padding: 10px;
       margin-bottom: 20px;
       border-radius: 3px;
@@ -56,13 +56,14 @@
   <h1>💬 Comment System</h1>
   
   <div class="info">
-    <strong>ℹ️ Formatting tip:</strong> You can use &lt;b&gt;, &lt;i&gt;, and &lt;u&gt; tags to format your comments!
+    <strong>ℹ️ Formatting tip:</strong> You can use &lt;b&gt;, &lt;i&gt;, and &lt;u&gt; tags to format your comments!<br>
+    <strong>🔒 Your challenge:</strong> Make sure your sanitizer allows these tags but blocks XSS attacks!
   </div>
 
   <div class="comment-form">
     <h2>Leave a comment</h2>
     <form method="post">
-      <input type="text" name="comment" placeholder="Enter your comment..." required />
+      <input type="text" name="comment" placeholder="Try: This is <b>bold</b> text" required />
       <button type="submit">Submit</button>
     </form>
   </div>
@@ -72,7 +73,7 @@
       <h2>All Comments ({{ comments|length }})</h2>
       {% for comment in comments %}
         <div class="comment">
-          <!-- VULNERABLE: Using | safe filter without sanitization -->
+          <!-- Safe to use | safe here because sanitize_html() has already cleaned the input -->
           {{ comment | safe }}
         </div>
       {% endfor %}
