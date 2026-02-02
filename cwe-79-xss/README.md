@@ -29,7 +29,7 @@ pip install -r requirements.txt
 
 ## Test Your Solution
 ```bash
-pytest test_xss.py -v
+python -m pytest -q
 ```
 
 **Goal:** All 8 tests should pass.
