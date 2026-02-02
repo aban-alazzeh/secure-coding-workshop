@@ -44,8 +44,8 @@ Visit: `http://127.0.0.1:8000/comment`
 **Try these:**
 - Safe: `This is <b>bold</b> and <i>italic</i>`
 - Attack: `<script>alert('XSS')</script>`
-- Attack: `<img src=x onerror=alert(1)>`
-- Attack: `<b onclick="alert(1)">click me</b>`
+- Attack: `<img src=x onerror=alert(You've been hacked)>`
+- Attack: `<b onclick="alert(You've been hacked)">click me</b>`
 
 ## Hints
 
