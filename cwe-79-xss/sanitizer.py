@@ -71,16 +71,11 @@ class SafeHTMLParser(HTMLParser):
         pass
 
 
-def sanitize_html(user_input):
+def sanitize_html(user_input: str) -> str:
     """
-    Sanitizes user input to prevent XSS attacks.
-    
-    Args:
-        user_input (str): Raw HTML input from the user
-        
-    Returns:
-        str: Sanitized HTML safe to render
-    
-    TODO: Implement this function using SafeHTMLParser
+    INTENTIONALLY INSECURE (starter state)
+
+    This returns raw user input so stored XSS is possible.
+    Learners will later replace this with a real sanitizer.
     """
-    pass
+    return user_input or ""
