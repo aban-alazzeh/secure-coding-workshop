@@ -1,39 +1,91 @@
-# CWE-79: Cross-Site Scripting (XSS)
+# CWE-79: Cross-Site Scripting (XSS) Lab
 
-This lab demonstrates how XSS happens when user input is rendered into an HTML page without proper output encoding.
+## Objective
 
-You will run a small web app with a comment form. In the vulnerable version, the app renders user input as raw HTML. Your task is to fix the code so user input is displayed safely as text and cannot be interpreted as HTML/JavaScript.
+Build an HTML sanitizer that prevents XSS attacks while allowing basic text formatting.
 
-Rules:
-- You may modify `templates/comment.html` and/or `app.py` to fix the issue.
-- Do NOT change tests.
-- Do NOT add new dependencies.
+## The Problem
 
-Setup (run commands from inside `cwe-79-xss`):
+The comment system allows users to format text with `<b>`, `<i>`, and `<u>` tags. However, attackers can inject malicious code like `<script>alert('XSS')</script>`.
 
-Linux/macOS:
+Your job: implement a sanitizer that blocks dangerous HTML while preserving safe formatting.
+
+## Your Task
+
+Complete the `sanitizer.py` file:
+
+1. Define `ALLOWED_TAGS` - which tags are safe?
+2. Implement `SafeHTMLParser` class methods
+3. Implement `sanitize_html()` function
+
+**Approach:** Use an **allowlist** - only permit specific safe tags, block everything else.
+
+## Setup
+```bash
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-Windows PowerShell:
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+## Test Your Solution
+```bash
+pytest test_xss.py -v
+```
 
-Install dependencies:
-python -m pip install -r requirements.txt
+**Goal:** All 8 tests should pass.
 
-Run tests (expected to FAIL at first):
-python -m pytest -q
+## Run the App
+```bash
+uvicorn app:app --reload
+```
 
-Run the app:
-python -m uvicorn app:app --reload
+Visit: `http://127.0.0.1:8000/comment`
 
-Open in your browser:
-http://127.0.0.1:8000/comment
+**Try these:**
+- Safe: `This is <b>bold</b> and <i>italic</i>`
+- Attack: `<script>alert('XSS')</script>`
+- Attack: `<img src=x onerror=alert(1)>`
+- Attack: `<b onclick="alert(1)">click me</b>`
 
-What to try (for understanding only):
-Submit a comment containing HTML tags. In the vulnerable version, tags may be rendered as real HTML.
+## Hints
 
-Success criteria:
-- Tests pass
-- User input is displayed as text (escaped), not executed/rendered as raw HTML
+<details>
+<summary>Hint 1: Allowlist</summary>
+
+Define which tags are safe:
+```python
+ALLOWED_TAGS = {'b', 'i', 'u'}
+```
+</details>
+
+<details>
+<summary>Hint 2: Parser Structure</summary>
+
+You need to:
+- Build a list to accumulate safe HTML parts
+- Track when you're inside dangerous tags (so you can skip their content)
+- Rebuild HTML with only allowed tags (no attributes)
+</details>
+
+<details>
+<summary>Hint 3: Using HTMLParser</summary>
+```python
+from html.parser import HTMLParser
+
+parser = SafeHTMLParser()
+parser.feed(user_input)
+result = parser.get_sanitized_html()
+```
+</details>
+
+## Success Criteria
+
+- ✅ All tests pass
+- ✅ Safe tags (`<b>`, `<i>`, `<u>`) are preserved
+- ✅ Dangerous tags (`<script>`, `<img>`, etc.) are removed
+- ✅ ALL attributes are stripped (including from safe tags)
+- ✅ Text content is preserved
+
+## After Completion
+
+Your instructor will demonstrate an alternative approach using **output escaping** instead of allowlisting.
