@@ -2,21 +2,79 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>CWE-89 Lab - Login</title>
+    <title>CWE-89 Lab</title>
+
     <style>
-      body { font-family: system-ui, sans-serif; margin: 2rem; }
-      .box { max-width: 520px; padding: 1.25rem; border: 1px solid #ddd; border-radius: 10px; }
-      input { width: 100%; padding: 0.6rem; margin: 0.4rem 0 0.9rem 0; }
-      button { padding: 0.6rem 1rem; cursor: pointer; }
-      .msg { margin-top: 1rem; padding: 0.75rem; background: #f6f6f6; border-radius: 8px; }
-      code { background: #f2f2f2; padding: 0.1rem 0.3rem; border-radius: 6px; }
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fafafa;
+      }
+
+      .box {
+        width: 100%;
+        max-width: 560px;
+        padding: 1.5rem;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        background: white;
+      }
+
+      .section {
+        margin-top: 1.25rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid #eee;
+      }
+
+      input {
+        width: 100%;
+        padding: 0.6rem;
+        margin: 0.4rem 0 0.9rem 0;
+      }
+
+      button {
+        padding: 0.6rem 1rem;
+        cursor: pointer;
+      }
+
+      .msg {
+        margin-top: 1rem;
+        padding: 0.75rem;
+        background: #f6f6f6;
+        border-radius: 8px;
+      }
+
+      .err {
+        margin-top: 1rem;
+        padding: 0.75rem;
+        background: #ffecec;
+        border: 1px solid #ffbcbc;
+        border-radius: 8px;
+        white-space: pre-wrap;
+      }
+
+      code {
+        background: #f2f2f2;
+        padding: 0.1rem 0.3rem;
+        border-radius: 6px;
+      }
+
+      a {
+        color: inherit;
+      }
     </style>
   </head>
+
   <body>
     <div class="box">
       <h2>CWE-89 — SQL Injection Lab</h2>
       <p>Inspect the code, observe the vulnerability, then fix it.</p>
 
+      <!-- Login (boolean-based SQLi) -->
       <form method="post" action="/login">
         <label>Username</label>
         <input name="username" placeholder="e.g. alice" />
@@ -31,12 +89,37 @@
         <div class="msg">{{ message }}</div>
       {% endif %}
 
-      <p style="margin-top: 1rem; font-size: 0.95rem;">
-        Seeded users:
-        <code>alice/alice123</code>,
-        <code>bob/bob123</code>,
-        <code>admin/admin123</code>
-      </p>
+      <!-- Debug (error-based SQLi + error leakage) -->
+      <div class="section">
+        <h3 style="margin: 0 0 0.5rem 0;">Debug Lookup (intentionally insecure)</h3>
+        <p style="margin-top: 0;">
+          This endpoint reflects raw SQL errors back to the user (for demo).
+        </p>
+
+        <form method="post" action="/debug">
+          <label>Lookup username (debug)</label>
+          <input name="q" placeholder="try: alice or just a single quote '" />
+          <button type="submit">Run Debug Query</button>
+        </form>
+
+        {% if debug_error %}
+          <div class="err"><strong>DB Error leaked:</strong> {{ debug_error }}</div>
+        {% endif %}
+      </div>
+
+      <div class="section">
+        <p style="margin: 0;">
+          UNION-based SQLi demo page:
+          <a href="/users">/users</a>
+        </p>
+
+        <p style="margin-top: 0.75rem; font-size: 0.95rem;">
+          Seeded users:
+          <code>alice/alice123</code>,
+          <code>bob/bob123</code>,
+          <code>admin/admin123</code>
+        </p>
+      </div>
     </div>
   </body>
 </html>
