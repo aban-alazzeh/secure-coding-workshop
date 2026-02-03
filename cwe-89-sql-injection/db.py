@@ -6,7 +6,7 @@ This file contains the insecure DB code that attendees will fix later.
 We intentionally include multiple unsafe query patterns:
 - login auth bypass (string interpolation)
 - debug query (error leakage)
-- user search (UNION-based injection 가능)
+- user search (UNION-based injection)
 
 Important: These are separated by endpoint in app.py (one vulnerability type per endpoint).
 """
