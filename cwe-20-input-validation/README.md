@@ -1,45 +1,96 @@
 # CWE-20: Improper Input Validation
 
-This lab focuses on fixing improper input validation in a small, runnable API. The goal is to enforce clear input rules, bounds, and allowlists so the application behaves safely under normal and edge-case inputs. You will review the code, run failing tests, and update the validation logic to prevent downstream security and availability issues.
+## Objective
 
-You are only allowed to modify `validator.py`. Do not change the tests and do not add new dependencies.
+Understand how accepting unvalidated or weakly validated input can lead to security, reliability, and availability issues, even when no obvious crash or error occurs.
 
-Setup instructions (run all commands from inside the `cwe-20-input-validation` directory):
+This lab focuses on defining what valid input actually is and enforcing those rules consistently.
 
-Linux or macOS:
+## The Problem
+
+The application provides a /search endpoint that lets users control how data is filtered and sorted.
+
+In its current state, the application:
+- Does not strictly check input types.
+- Does not limit the size or range of values.
+- Accepts user-supplied field names without restriction.
+
+Because of this, the application:
+- Accepts values that don’t make sense (for example, extremely large page sizes)
+- Allows users to sort or request fields that were never intended to be exposed
+- Continues processing requests that should have been rejected
+
+## Your Task
+
+Your task is to harden the input validation logic so that:
+
+- Invalid input is rejected early
+- Only expected types, values, and fields are accepted
+- The application fails safely with a clear error
+
+You must:
+- Modify the input validation logic
+- Clearly define what “valid input” means
+- Reject everything else
+
+You **must not**:
+- Change the tests
+- Change the application’s core logic
+
+
+## Setup
+```bash
 python3 -m venv .venv
-source .venv/bin/activate
-
-Windows PowerShell:
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-
-Windows cmd:
-python -m venv .venv
-.\.venv\Scripts\activate.bat
-
-Install dependencies:
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+```
 
-Run the tests (they are expected to fail at first):
-pytest
-
-Run the API:
+## Run the App
+```bash
 uvicorn app:app --reload
+```
 
-Open your browser and go to:
-http://127.0.0.1:8000/docs
+Visit: `http://127.0.0.1:8000/docs`
 
-Your task is to read `validator.py`, identify where input is accepted without proper validation, and implement strict validation and normalization inside `validate_and_normalize()`. When you are done, all tests should pass and invalid input should return HTTP 400 responses while valid input returns results.
+## Test Your Solution
+```bash
+python -m pytest -q
+```
 
-You are finished when all tests pass, invalid input is rejected with safe error messages, and valid requests return search results.
+**Goal:** All 6 tests should pass.
 
-You can use the built-in Swagger UI at `/docs` to send requests, or test with payloads such as these, which should be rejected after your fixes:
 
-{ "q": "t", "page": 1, "page_size": 100000 }
+**Try these:**
+- Authentication bypass on the POST /login endpoint:
+  - Username: admin' -- / admin 'OR '1'='1
+  - Password: anything
+- Error-based SQL Injection on the POST /debug endpoint:
+  - ```bash
+    '
+    ```
+- UNION-based SQL Injection on the GET /users endpoint:
+  - ```bash
+    ' UNION SELECT password FROM users --
+    ```
 
-{ "sort": "-drop_table" }
+## Hints
 
-{ "fields": ["password_hash"] }
+<details>
+<summary>Hint 1: Parameterized Queries</summary>
 
-{ "filters": { "level": ["INFO", "HACK"] } }
+  Avoid building SQL queries using string concatenation or f-strings.
+</details>
+
+<details>
+<summary>Hint 2: Error Handling</summary>
+
+  Database errors should never be shown to end users.
+  Catch database exceptions and return a **generic error message** instead of the raw exception details.
+</details>
+
+<details>
+<summary>Hint 3: Fix the Root Cause</summary>
+
+  Blocking specific inputs or payloads is not sufficient.
+  The correct fix ensures that user input is never interpreted as SQL, regardless of its contents.
+</details>
