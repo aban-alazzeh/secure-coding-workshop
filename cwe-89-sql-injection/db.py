@@ -1,10 +1,14 @@
 """
-CWE-89 Lab: Intentionally vulnerable database helpers.
+CWE-89 — SQL Injection Lab (INTENTIONALLY VULNERABLE)
 
-The goal for attendees:
-- Identify where SQL Injection is possible.
-- Fix it using parameterized queries.
-- Add safe error handling so DB errors don't leak.
+This file contains the insecure DB code that attendees will fix later.
+
+We intentionally include multiple unsafe query patterns:
+- login auth bypass (string interpolation)
+- debug query (error leakage)
+- user search (UNION-based injection 가능)
+
+Important: These are separated by endpoint in app.py (one vulnerability type per endpoint).
 """
 
 import sqlite3
@@ -44,21 +48,61 @@ def init_db() -> None:
     conn.close()
 
 
-def authenticate_user(username: str, password: str) -> bool:
+def authenticate_user(username: str, password: str):
     """
-    ❌ INTENTIONALLY VULNERABLE:
-    SQL is built using string interpolation (classic SQL injection).
+    ❌ SQLi (boolean-based/auth bypass):
+    vulnerable query built with string interpolation.
+
+    ✅ returns username FROM DB if auth succeeds (more realistic UI).
     """
     conn = get_connection()
     cur = conn.cursor()
 
     query = (
-        f"SELECT id FROM users "
+        f"SELECT username FROM users "
         f"WHERE username = '{username}' AND password = '{password}'"
     )
 
     cur.execute(query)
     row = cur.fetchone()
+    conn.close()
+
+    return row["username"] if row else None
+
+
+def debug_lookup(q: str):
+    """
+    ❌ SQLi (error-based):
+    unbalanced quotes can trigger an SQL error.
+
+    This function intentionally does NOT handle exceptions.
+    app.py will intentionally reflect the error back to the user for the demo.
+    """
+    conn = get_connection()
+    cur = conn.cursor()
+
+    query = f"SELECT username FROM users WHERE username = '{q}'"
+    cur.execute(query)
+    rows = cur.fetchall()
 
     conn.close()
-    return row is not None
+    return rows
+
+
+def search_users(search: str):
+    """
+    ❌ SQLi (UNION-based):
+    vulnerable LIKE query, string interpolation.
+
+    Example payload (for demo):
+      ' UNION SELECT password FROM users --
+    """
+    conn = get_connection()
+    cur = conn.cursor()
+
+    query = f"SELECT username FROM users WHERE username LIKE '%{search}%'"
+    cur.execute(query)
+    rows = cur.fetchall()
+
+    conn.close()
+    return rows
