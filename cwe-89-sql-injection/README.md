@@ -15,7 +15,7 @@ As a result:
 
 ## Your Task
 
-Inspect the code and fix the insecure SQL usage so that::
+Inspect the code and fix the insecure SQL usage so that:
 
 1. Authentication cannot be bypassed using SQL injection.
 2. Database error messages are not reflected back to the user.
