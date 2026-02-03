@@ -2,7 +2,7 @@
 
 ## Objective
 
-Build an HTML sanitizer that prevents XSS attacks while allowing basic text formatting.
+Understand how unsafe construction of SQL queries can lead to different types of SQL injection vulnerabilities, and learn how to fix them using secure coding practices.
 
 ## The Problem
 
