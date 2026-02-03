@@ -51,8 +51,8 @@ Visit: `http://127.0.0.1:8000`
   - Password: anything
 - Error-based SQL Injection on the POST /debug endpoint:
   - ```bash
-  '
-  ```
+    '
+    ```
 - UNION-based SQL Injection on the GET /users endpoint:
   - ```bash
     ' UNION SELECT password FROM users --
