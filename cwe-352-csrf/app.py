@@ -28,17 +28,12 @@ def get_session(request: Request) -> Optional[Dict[str, Any]]:
 def require_login(request: Request) -> Dict[str, Any]:
     session = get_session(request)
     if not session:
+        # Redirect to login instead of returning 401 (prevents "blank page" confusion)
         raise HTTPException(status_code=401, detail="Not logged in")
     return session
 
 
 def require_csrf(session: Dict[str, Any], provided_token: Optional[str]) -> None:
-    """
-    CSRF guard for state-changing actions.
-
-    NOTE: This currently calls an intentionally insecure validator in csrf.py.
-    Students will implement proper token generation + validation.
-    """
     expected = session.get("csrf", "")
     if not validate_csrf_token(expected, provided_token):
         raise HTTPException(status_code=403, detail="CSRF validation failed")
@@ -57,6 +52,27 @@ def index(request: Request):
     return RedirectResponse(url="/login", status_code=302)
 
 
+# -----------------------
+# Attacker demo pages
+# -----------------------
+@app.get("/attacker/transfer", response_class=HTMLResponse)
+def attacker_transfer(request: Request):
+    return templates.TemplateResponse("attacker_transfer.html", {"request": request})
+
+
+@app.get("/attacker/add-payee", response_class=HTMLResponse)
+def attacker_add_payee(request: Request):
+    return templates.TemplateResponse("attacker_add_payee.html", {"request": request})
+
+
+@app.get("/attacker/change-email", response_class=HTMLResponse)
+def attacker_change_email(request: Request):
+    return templates.TemplateResponse("attacker_change_email.html", {"request": request})
+
+
+# -----------------------
+# Auth
+# -----------------------
 @app.get("/login", response_class=HTMLResponse)
 def login_form(request: Request):
     return templates.TemplateResponse("login.html", {"request": request, "error": None})
@@ -67,10 +83,7 @@ def login(request: Request, username: str = Form(...), password: str = Form(...)
     if not db.authenticate(username, password):
         return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials."})
 
-    # Create session
     session_id = secrets.token_urlsafe(24)
-
-    # CSRF token (starter uses csrf.generate_csrf_token which is currently insecure)
     csrf_token = generate_csrf_token()
 
     SESSIONS[session_id] = {"username": username, "csrf": csrf_token}
@@ -90,11 +103,16 @@ def logout(request: Request):
     return resp
 
 
+# -----------------------
+# Dashboard + actions
+# -----------------------
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(request: Request):
-    session = require_login(request)
-    username = session["username"]
+    session = get_session(request)
+    if not session:
+        return RedirectResponse(url="/login", status_code=302)
 
+    username = session["username"]
     context = {
         "request": request,
         "username": username,
@@ -102,7 +120,6 @@ def dashboard(request: Request):
         "email": db.get_email(username),
         "payees": db.list_payees(username),
         "transfers": db.recent_transfers(username, limit=10),
-        # CSRF token should be rendered into forms (starter template is missing it)
         "csrf_token": session.get("csrf", ""),
         "message": None,
         "error": None,
@@ -117,22 +134,22 @@ def do_transfer(
     amount: int = Form(...),
     csrf_token: Optional[str] = Form(None),
 ):
-    session = require_login(request)
+    session = get_session(request)
+    if not session:
+        return RedirectResponse(url="/login", status_code=302)
 
-    # CSRF guard (currently ineffective until students implement it)
     require_csrf(session, csrf_token)
 
     sender = session["username"]
     ok, msg = db.transfer(sender, recipient, amount)
 
-    username = sender
     context = {
         "request": request,
-        "username": username,
-        "balance": db.get_balance(username),
-        "email": db.get_email(username),
-        "payees": db.list_payees(username),
-        "transfers": db.recent_transfers(username, limit=10),
+        "username": sender,
+        "balance": db.get_balance(sender),
+        "email": db.get_email(sender),
+        "payees": db.list_payees(sender),
+        "transfers": db.recent_transfers(sender, limit=10),
         "csrf_token": session.get("csrf", ""),
         "message": msg if ok else None,
         "error": None if ok else msg,
@@ -146,7 +163,10 @@ def add_payee(
     payee: str = Form(...),
     csrf_token: Optional[str] = Form(None),
 ):
-    session = require_login(request)
+    session = get_session(request)
+    if not session:
+        return RedirectResponse(url="/login", status_code=302)
+
     require_csrf(session, csrf_token)
 
     owner = session["username"]
@@ -172,7 +192,10 @@ def change_email(
     email: str = Form(...),
     csrf_token: Optional[str] = Form(None),
 ):
-    session = require_login(request)
+    session = get_session(request)
+    if not session:
+        return RedirectResponse(url="/login", status_code=302)
+
     require_csrf(session, csrf_token)
 
     username = session["username"]
