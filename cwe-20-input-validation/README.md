@@ -60,37 +60,115 @@ python -m pytest -q
 **Goal:** All 6 tests should pass.
 
 
-**Try these:**
-- Authentication bypass on the POST /login endpoint:
-  - Username: admin' -- / admin 'OR '1'='1
-  - Password: anything
-- Error-based SQL Injection on the POST /debug endpoint:
-  - ```bash
-    '
-    ```
-- UNION-based SQL Injection on the GET /users endpoint:
-  - ```bash
-    ' UNION SELECT password FROM users --
-    ```
+**Try these attack payloads via the interactive docs:**
+
+1. **Type confusion (should be rejected):**
+```json
+   {"q": 123}
+```
+
+2. **Excessive input length (should be rejected):**
+```json
+   {"q": "aaaaaaaaaa..."}  // 5000+ characters
+```
+
+3. **Invalid pagination (should be rejected):**
+```json
+   {"page": 0}
+   {"page_size": 100000}
+```
+
+4. **Unintended sort field (should be rejected):**
+```json
+   {"sort": "-drop_table"}
+   {"sort": "password_hash"}
+```
+
+5. **Empty or disallowed fields (should be rejected):**
+```json
+   {"fields": []}
+   {"fields": ["password_hash", "secret_key"]}
+```
+
+6. **Invalid log levels (should be rejected):**
+```json
+   {"filters": {"level": ["INFO", "HACK"]}}
+```
 
 ## Hints
 
 <details>
-<summary>Hint 1: Parameterized Queries</summary>
+<summary>Hint 1: Type Validation</summary>
 
-  Avoid building SQL queries using string concatenation or f-strings.
+Always check that inputs are the expected type before using them:
+```python
+if not isinstance(q, str):
+    raise ValueError("'q' must be a string")
+```
 </details>
 
 <details>
-<summary>Hint 2: Error Handling</summary>
+<summary>Hint 2: Range/Length Limits</summary>
 
-  Database errors should never be shown to end users.
-  Catch database exceptions and return a **generic error message** instead of the raw exception details.
+Set reasonable boundaries for numeric and string inputs:
+```python
+if page < 1:
+    raise ValueError("'page' must be >= 1")
+if len(q) > 1000:
+    raise ValueError("'q' must be <= 1000 characters")
+```
 </details>
 
 <details>
-<summary>Hint 3: Fix the Root Cause</summary>
+<summary>Hint 3: Allowlisting</summary>
 
-  Blocking specific inputs or payloads is not sufficient.
-  The correct fix ensures that user input is never interpreted as SQL, regardless of its contents.
+Use predefined sets to validate field names:
+```python
+ALLOWED_FIELDS = {"id", "service", "level", "timestamp", "message"}
+
+for field in fields:
+    if field not in ALLOWED_FIELDS:
+        raise ValueError(f"Invalid field: {field}")
+```
 </details>
+
+<details>
+<summary>Hint 4: Sort Field Validation</summary>
+
+Remember that sort can start with `-` for descending order:
+```python
+sort_field = sort.lstrip("-")
+if sort_field not in ALLOWED_SORT_FIELDS:
+    raise ValueError(f"Invalid sort field: {sort_field}")
+```
+</details>
+
+## Files to Modify
+
+**`validator.py`** - Add proper validation checks to `validate_and_normalize()`
+
+## Validation Checklist
+
+Your implementation should validate:
+
+1. **`q` (search query):**
+   - Must be a string
+   - Maximum length: 1000 characters
+
+2. **`page`:**
+   - Must be an integer
+   - Minimum value: 1
+
+3. **`page_size`:**
+   - Must be an integer
+   - Maximum value: 100
+
+4. **`sort`:**
+   - Must be in `ALLOWED_SORT_FIELDS` (with or without `-` prefix)
+
+5. **`fields`:**
+   - Must be a non-empty list
+   - All fields must be in `ALLOWED_FIELDS`
+
+6. **`filters.level`:**
+   - All levels must be in `ALLOWED_LEVELS`
