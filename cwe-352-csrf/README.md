@@ -97,14 +97,6 @@ Add this line to every state-changing form in `dashboard.html`:
 ```
 </details>
 
-## Success Criteria
-
-- ✅ All tests pass
-- ✅ CSRF tokens are cryptographically random (unpredictable)
-- ✅ Tokens are validated using constant-time comparison
-- ✅ All three forms include CSRF tokens
-- ✅ Attacker pages can no longer perform unauthorized actions
-
 ## Files to Modify
 
 1. **`csrf.py`** - Implement `generate_csrf_token()` and `validate_csrf_token()`
