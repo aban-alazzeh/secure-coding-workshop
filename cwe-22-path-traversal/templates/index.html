@@ -1,30 +1,231 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>CWE-22 Lab</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CWE-22 Path Traversal Lab</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+      
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+      
+      .header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+      
+      .header h1 {
+        font-size: 28px;
+        margin-bottom: 8px;
+      }
+      
+      .header p {
+        font-size: 14px;
+        opacity: 0.9;
+      }
+      
+      .content {
+        padding: 30px;
+      }
+      
+      .section {
+        margin-bottom: 30px;
+      }
+      
+      .section h2 {
+        font-size: 18px;
+        color: #667eea;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 8px;
+      }
+      
+      .report-list {
+        list-style: none;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+      }
+      
+      .report-list li {
+        margin-bottom: 10px;
+      }
+      
+      .report-list li:last-child {
+        margin-bottom: 0;
+      }
+      
+      .report-list a {
+        display: block;
+        padding: 12px 15px;
+        background: white;
+        color: #667eea;
+        text-decoration: none;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+        transition: all 0.2s ease;
+        font-weight: 500;
+      }
+      
+      .report-list a:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+        transform: translateX(5px);
+      }
+      
+      .form-container {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+      }
+      
+      .form-group {
+        margin-bottom: 15px;
+      }
+      
+      label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #555;
+      }
+      
+      input[type="text"] {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.2s ease;
+      }
+      
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+      
+      button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+      
+      button:active {
+        transform: translateY(0);
+      }
+      
+      .hint-box {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
+        border-radius: 6px;
+        margin-top: 20px;
+      }
+      
+      .hint-box strong {
+        color: #856404;
+        display: block;
+        margin-bottom: 5px;
+      }
+      
+      .hint-box p {
+        color: #856404;
+        font-size: 14px;
+        margin: 0;
+      }
+      
+      code {
+        background: #f4f4f4;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        color: #e83e8c;
+      }
+    </style>
   </head>
   <body>
-    <h1>CWE-22: Path Traversal</h1>
-
-    <p>Pick a report (or type one manually):</p>
-
-    <ul>
-      {% for r in report_names %}
-        <li><a href="/report?name={{ r }}">{{ r }}</a></li>
-      {% endfor %}
-    </ul>
-
-    <hr />
-
-    <form action="/report" method="get">
-      <label for="name">Report name:</label>
-      <input id="name" name="name" placeholder="welcome.txt" />
-      <button type="submit">View</button>
-    </form>
-
-    <p style="margin-top: 20px;">
-      Hint: this lab is intentionally insecure. Your goal is to fix the code so traversal attempts can’t escape <code>data/reports</code>.
-    </p>
+    <div class="container">
+      <div class="header">
+        <h1>🔒 CWE-22: Path Traversal Lab</h1>
+      </div>
+      
+      <div class="content">
+        <div class="section">
+          <h2>📋 Available Reports</h2>
+          {% if report_names %}
+            <ul class="report-list">
+              {% for r in report_names %}
+                <li><a href="/report?name={{ r }}">{{ r }}</a></li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p style="color: #999; font-style: italic;">No reports found in the directory.</p>
+          {% endif %}
+        </div>
+        
+        <div class="section">
+          <h2>🔍 Manual Report Lookup</h2>
+          <div class="form-container">
+            <form action="/report" method="get">
+              <div class="form-group">
+                <label for="name">Enter report name:</label>
+                <input 
+                  type="text" 
+                  id="name" 
+                  name="name" 
+                  placeholder="welcome.txt" 
+                  autocomplete="off"
+                />
+              </div>
+              <button type="submit">View Report</button>
+            </form>
+          </div>
+        </div>
+        
+        <div class="hint-box">
+          <strong>⚠️ Lab Objective:</strong>
+          <p>
+            This application is intentionally vulnerable to path traversal attacks. 
+            Your goal is to fix the code so that traversal attempts cannot escape 
+            the <code>data/reports</code> directory.
+          </p>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
