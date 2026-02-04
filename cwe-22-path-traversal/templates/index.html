@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>CWE-22 Lab</title>
+  </head>
+  <body>
+    <h1>CWE-22: Path Traversal</h1>
+
+    <p>Pick a report (or type one manually):</p>
+
+    <ul>
+      {% for r in report_names %}
+        <li><a href="/report?name={{ r }}">{{ r }}</a></li>
+      {% endfor %}
+    </ul>
+
+    <hr />
+
+    <form action="/report" method="get">
+      <label for="name">Report name:</label>
+      <input id="name" name="name" placeholder="welcome.txt" />
+      <button type="submit">View</button>
+    </form>
+
+    <p style="margin-top: 20px;">
+      Hint: this lab is intentionally insecure. Your goal is to fix the code so traversal attempts can’t escape <code>data/reports</code>.
+    </p>
+  </body>
+</html>
