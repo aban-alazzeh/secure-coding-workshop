@@ -67,8 +67,7 @@ def debug_endpoint(request: Request, q: str = Form(...)):
         # ❌ Intentional error leakage for demo
         return templates.TemplateResponse(
             "login.html",
-            {"request": request, "message": None, "debug_error": f"{type(e).__name__}: {e}"},
-
+            {"request": request, "message": None, "debug_error": str(e)},
         )
 
 
