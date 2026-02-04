@@ -102,10 +102,3 @@ Add this line to every state-changing form in `dashboard.html`:
 1. **`csrf.py`** - Implement `generate_csrf_token()` and `validate_csrf_token()`
 2. **`dashboard.html`** - Add CSRF token hidden inputs to all three forms
 
-## After Completion
-
-Your instructor will demonstrate:
-- Why CSRF tokens must be unpredictable
-- The importance of constant-time comparison
-- Real-world CSRF attack examples
-- Additional defenses (SameSite cookies, Origin header validation)
