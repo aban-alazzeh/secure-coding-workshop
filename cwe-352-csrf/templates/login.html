@@ -1,36 +1,172 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CWE-352 CSRF Lab - Login</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      
+      .container {
+        width: 100%;
+        max-width: 420px;
+        padding: 20px;
+      }
+      
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      }
+      
+      h1 {
+        color: #1f2937;
+        font-size: 28px;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+      
+      .subtitle {
+        text-align: center;
+        color: #6b7280;
+        font-size: 14px;
+        margin-bottom: 30px;
+      }
+      
+      .error {
+        color: #b91c1c;
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        text-align: center;
+      }
+      
+      .form-group {
+        margin-bottom: 20px;
+      }
+      
+      label {
+        display: block;
+        color: #374151;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 6px;
+      }
+      
+      input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      
+      input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+      
+      button {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+      
+      button:active {
+        transform: translateY(0);
+      }
+      
+      .hint {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #e5e7eb;
+      }
+      
+      .hint-title {
+        color: #374151;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+      
+      .accounts-list {
+        list-style: none;
+        padding: 0;
+      }
+      
+      .accounts-list li {
+        padding: 8px 12px;
+        background: #f9fafb;
+        border-radius: 6px;
+        margin-bottom: 6px;
+        font-size: 14px;
+        color: #4b5563;
+        font-family: 'Courier New', monospace;
+      }
+    </style>
   </head>
   <body>
-    <h1>Bank Login</h1>
+    <div class="container">
+      <div class="card">
+        <h1>🏦 Bank Login</h1>
+        <div class="subtitle">CWE-352 CSRF Security Lab</div>
 
-    {% if error %}
-      <p style="color: red;"><strong>{{ error }}</strong></p>
-    {% endif %}
+        {% if error %}
+          <div class="error">{{ error }}</div>
+        {% endif %}
 
-    <form method="POST" action="/login">
-      <label>
-        Username:
-        <input name="username" />
-      </label>
-      <br />
-      <label>
-        Password:
-        <input name="password" type="password" />
-      </label>
-      <br /><br />
-      <button type="submit">Login</button>
-    </form>
+        <form method="POST" action="/login">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" autocomplete="username" required />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required />
+          </div>
+          <button type="submit">Login</button>
+        </form>
 
-    <hr />
-    <p><strong>Demo accounts:</strong></p>
-    <ul>
-      <li>alice / password123</li>
-      <li>bob / password123</li>
-      <li>attacker / password123</li>
-    </ul>
+        <div class="hint">
+          <div class="hint-title">Demo Accounts:</div>
+          <ul class="accounts-list">
+            <li>alice / password123</li>
+            <li>bob / password123</li>
+            <li>attacker / password123</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
