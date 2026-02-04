@@ -1,4 +1,4 @@
-# Secure Coding Workshop Labs
+# Secure Coding Labs
 
 This repository contains hands-on secure coding labs focused on fixing real
 development mistakes that commonly lead to security issues.
