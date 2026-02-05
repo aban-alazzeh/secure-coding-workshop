@@ -1,33 +1,49 @@
-ALLOWED_LEVELS = {"INFO", "WARN", "ERROR"}
-ALLOWED_SORT_FIELDS = {"timestamp", "level", "service", "id"}
-ALLOWED_FIELDS = {"id", "service", "level", "timestamp", "message"}
+def _fail(msg: str):
+    return {
+        "ok": False,
+        "error": msg,
+        "total": None,
+        "details": None,
+    }
 
-def validate_and_normalize(payload: dict) -> dict:
+
+def _validate_quantity(raw: str):
     """
-    INTENTIONALLY INSECURE (CWE-20).
-    Attendees must harden this function until tests pass.
+    Expected rules (NOT implemented yet):
+    - Required
+    - Digits only
+    - Integer range: 1..20
     """
-    if not isinstance(payload, dict):
-        raise ValueError("Invalid request body")
+    # TODO: implement validation
+    return None, None
 
-    q = payload.get("q", "")
-    filters = payload.get("filters", {}) or {}
-    sort = payload.get("sort", "-timestamp")
-    page = payload.get("page", 1)
-    page_size = payload.get("page_size", 50)
-    fields = payload.get("fields", ["id", "timestamp", "message"])
 
-    service = filters.get("service")
-    level = filters.get("level", ["INFO", "WARN", "ERROR"])
+def _validate_discount(raw: str):
+    """
+    Expected rules (NOT implemented yet):
+    - Optional
+    - Digits only if provided
+    - Integer range: 0..50
+    """
+    # TODO: implement validation
+    return 0, None
+
+
+def validate_and_calculate_total(*, quantity: str, discount: str, unit_price: float):
+    q, err = _validate_quantity(quantity)
+    if err:
+        return _fail(err)
+
+    d, err = _validate_discount(discount)
+    if err:
+        return _fail(err)
+
+    subtotal = q * float(unit_price)
+    total = subtotal * (1.0 - (d / 100.0))
 
     return {
-        "q": q,
-        "filters": {
-            "service": service,
-            "level": level,
-        },
-        "sort": sort,
-        "page": page,
-        "page_size": page_size,
-        "fields": fields,
+        "ok": True,
+        "error": None,
+        "total": total,
+        "details": {"quantity": q, "discount": d},
     }
