@@ -1,47 +1,100 @@
-from fastapi import FastAPI, HTTPException
-from validator import validate_and_normalize
+from fastapi import FastAPI, Form, Request
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
 
-app = FastAPI(title="CWE-20 Lab: Improper Input Validation")
+from validator import validate_and_calculate_total
 
-DATA = [
-    {"id": 1, "service": "api", "level": "INFO", "timestamp": "2026-01-20T10:00:00Z", "message": "started"},
-    {"id": 2, "service": "worker", "level": "WARN", "timestamp": "2026-01-21T11:00:00Z", "message": "slow job"},
-    {"id": 3, "service": "api", "level": "ERROR", "timestamp": "2026-01-22T12:00:00Z", "message": "timeout"},
-    {"id": 4, "service": "worker", "level": "WARN", "timestamp": "2026-01-22T12:00:00Z", "message": "fast job"},
-]
+app = FastAPI()
+templates = Jinja2Templates(directory="templates")
 
-@app.post("/search")
-def search(payload: dict):
-    try:
-        norm = validate_and_normalize(payload)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+ITEM_NAME = "Conference T-Shirt"
+UNIT_PRICE = 15.00
 
-    q = norm["q"]
-    service = norm["filters"]["service"]
-    levels = set(norm["filters"]["level"])
-    fields = norm["fields"]
-    sort = norm["sort"]
-    page = norm["page"]
-    page_size = norm["page_size"]
 
-    rows = []
-    for r in DATA:
-        if service and r["service"] != service:
-            continue
-        if levels and r["level"] not in levels:
-            continue
-        if q and q.lower() not in r["message"].lower():
-            continue
-        rows.append(r)
+@app.get("/", response_class=HTMLResponse)
+def root():
+    return RedirectResponse(url="/checkout", status_code=302)
 
-    reverse = sort.startswith("-")
-    key = sort.lstrip("-")
-    rows.sort(key=lambda x: x.get(key, ""), reverse=reverse)
 
-    start = (page - 1) * page_size
-    end = start + page_size
-    page_rows = rows[start:end]
+@app.get("/checkout", response_class=HTMLResponse)
+def checkout_page(request: Request):
+    return templates.TemplateResponse(
+        "checkout.html",
+        {
+            "request": request,
+            "item_name": ITEM_NAME,
+            "unit_price": UNIT_PRICE,
+            "error": None,
+            "quantity": "",
+            "discount": "",
+        },
+    )
 
-    result = [{k: row.get(k) for k in fields} for row in page_rows]
-    return {"count": len(rows), "results": result}
+
+@app.post("/checkout", response_class=HTMLResponse)
+def checkout_ui(request: Request, quantity: str = Form(None), discount: str = Form(None)):
+    """
+    UI route: shows receipt page on success.
+    Shows an error message on the checkout page on invalid input.
+    """
+    result = validate_and_calculate_total(
+        quantity=quantity,
+        discount=discount,
+        unit_price=UNIT_PRICE,
+    )
+
+    if not result["ok"]:
+        return templates.TemplateResponse(
+            "checkout.html",
+            {
+                "request": request,
+                "item_name": ITEM_NAME,
+                "unit_price": UNIT_PRICE,
+                "error": result["error"],
+                "quantity": quantity,
+                "discount": discount,
+            },
+            status_code=400,
+        )
+
+    details = result["details"]
+    return templates.TemplateResponse(
+        "receipt.html",
+        {
+            "request": request,
+            "item_name": ITEM_NAME,
+            "unit_price": UNIT_PRICE,
+            "quantity": details["quantity"],
+            "discount": details["discount"],
+            "total": result["total"],
+        },
+    )
+
+
+@app.post("/api/checkout")
+def checkout_api(quantity: str = Form(None), discount: str = Form(None)):
+    """
+    API route used by tests.
+    Returns 400 + {"ok": false, "error": "..."} on invalid input.
+    """
+    result = validate_and_calculate_total(
+        quantity=quantity,
+        discount=discount,
+        unit_price=UNIT_PRICE,
+    )
+
+    if not result["ok"]:
+        return JSONResponse(status_code=400, content={"ok": False, "error": result["error"]})
+
+    details = result["details"]
+    return JSONResponse(
+        status_code=200,
+        content={
+            "ok": True,
+            "item": ITEM_NAME,
+            "unit_price": UNIT_PRICE,
+            "quantity": details["quantity"],
+            "discount": details["discount"],
+            "total": result["total"],
+        },
+    )
