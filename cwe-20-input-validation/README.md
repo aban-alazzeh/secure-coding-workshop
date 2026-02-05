@@ -1,42 +1,29 @@
-# CWE-20: Improper Input Validation
+# CWE-20: Improper Input Validation Lab
 
 ## Objective
-
-Understand how accepting unvalidated or weakly validated input can lead to security, reliability, and availability issues, even when no obvious crash or error occurs.
-
-This lab focuses on defining what valid input actually is and enforcing those rules consistently.
+Understand how lack of proper input validation can allow malicious or malformed data to be processed by an application, and learn how to implement strict validation rules to prevent exploitation.
 
 ## The Problem
+The application accepts user input without proper validation:
+- Missing or empty values are silently replaced with defaults.
+- Non-integer formats like scientific notation (`1e3`) and floats (`2.5`) are accepted.
+- Negative, zero, and unreasonably large values are processed without rejection.
+- Discount values outside acceptable ranges (negative, >100, floats) are accepted.
 
-The application provides a /search endpoint that lets users control how data is filtered and sorted.
-
-In its current state, the application:
-- Does not strictly check input types.
-- Does not limit the size or range of values.
-- Accepts user-supplied field names without restriction.
-
-Because of this, the application:
-- Accepts values that don’t make sense (for example, extremely large page sizes)
-- Allows users to sort or request fields that were never intended to be exposed
-- Continues processing requests that should have been rejected
+As a result:
+- Users can manipulate pricing by providing unexpected input.
+- The application processes invalid data instead of rejecting it.
+- Business logic can be bypassed through crafted inputs.
 
 ## Your Task
+Inspect the code and implement proper input validation so that:
+1. Required fields (quantity) are validated and cannot be missing or empty.
+2. Quantity accepts only integer digits (1-20 range).
+3. Discount is optional but must be an integer in the range 0-50 if provided.
+4. Scientific notation, floats, negative values, and out-of-range inputs are rejected.
 
-Your task is to harden the input validation logic so that:
-
-- Invalid input is rejected early
-- Only expected types, values, and fields are accepted
-- The application fails safely with a clear error
-
-You must:
-- Modify the input validation logic
-- Clearly define what “valid input” means
-- Reject everything else
-
-You **must not**:
-- Change the tests
-- Change the application’s core logic
-
+Do **not** remove functionality or disable endpoints.  
+Fix the vulnerabilities by implementing proper validation in `validator.py`.
 
 ## Setup
 ```bash
@@ -45,130 +32,57 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Run the App
-```bash
-uvicorn app:app --reload
-```
-
-Visit: `http://127.0.0.1:8000/docs`
-
 ## Test Your Solution
 ```bash
 python -m pytest -q
 ```
 
-**Goal:** All 6 tests should pass.
+**Goal:** All 7 tests should pass.
 
-
-**Try these attack payloads via the interactive docs:**
-
-1. **Type confusion (should be rejected):**
-```json
-   {"q": 123}
+## Run the App
+```bash
+uvicorn app:app --reload
 ```
 
-2. **Excessive input length (should be rejected):**
-```json
-   {"q": "aaaaaaaaaa..."}  // 5000+ characters
-```
+Visit: `http://127.0.0.1:8000`
 
-3. **Invalid pagination (should be rejected):**
-```json
-   {"page": 0}
-   {"page_size": 100000}
-```
-
-4. **Unintended sort field (should be rejected):**
-```json
-   {"sort": "-drop_table"}
-   {"sort": "password_hash"}
-```
-
-5. **Empty or disallowed fields (should be rejected):**
-```json
-   {"fields": []}
-   {"fields": ["password_hash", "secret_key"]}
-```
-
-6. **Invalid log levels (should be rejected):**
-```json
-   {"filters": {"level": ["INFO", "HACK"]}}
-```
+**Try these exploits:**
+- Missing quantity field (should be rejected)
+- Scientific notation: `1e3` (should be rejected)
+- Float values: `2.5` (should be rejected)
+- Negative quantities: `-5` (should be rejected)
+- Zero quantity: `0` (should be rejected)
+- Huge quantities: `999999` (should be rejected)
+- Invalid discounts: `-10`, `51`, `10.5` (should be rejected)
 
 ## Hints
 
 <details>
-<summary>Hint 1: Type Validation</summary>
+<summary>Hint 1: Validate Before Parsing</summary>
 
-Always check that inputs are the expected type before using them:
-```python
-if not isinstance(q, str):
-    raise ValueError("'q' must be a string")
-```
+Check the raw string format before attempting to convert to int/float.
+Use string methods like `.isdigit()` to ensure only valid integer digits are present.
 </details>
 
 <details>
-<summary>Hint 2: Range/Length Limits</summary>
+<summary>Hint 2: Range Validation</summary>
 
-Set reasonable boundaries for numeric and string inputs:
-```python
-if page < 1:
-    raise ValueError("'page' must be >= 1")
-if len(q) > 1000:
-    raise ValueError("'q' must be <= 1000 characters")
-```
+After confirming the format is valid, check that the parsed integer falls within acceptable business logic ranges.
+Quantity: 1-20, Discount: 0-50.
 </details>
 
 <details>
-<summary>Hint 3: Allowlisting</summary>
+<summary>Hint 3: Required vs Optional</summary>
 
-Use predefined sets to validate field names:
-```python
-ALLOWED_FIELDS = {"id", "service", "level", "timestamp", "message"}
-
-for field in fields:
-    if field not in ALLOWED_FIELDS:
-        raise ValueError(f"Invalid field: {field}")
-```
+Quantity is required - reject `None` or empty strings.
+Discount is optional - treat `None` or empty strings as 0, but still validate if a value is provided.
 </details>
 
 <details>
-<summary>Hint 4: Sort Field Validation</summary>
+<summary>Hint 4: Clear Error Messages</summary>
 
-Remember that sort can start with `-` for descending order:
-```python
-sort_field = sort.lstrip("-")
-if sort_field not in ALLOWED_SORT_FIELDS:
-    raise ValueError(f"Invalid sort field: {sort_field}")
-```
+Return specific error messages that help developers understand what went wrong, such as:
+- "Quantity is required"
+- "Quantity must be a positive integer between 1 and 20"
+- "Discount must be an integer between 0 and 50"
 </details>
-
-## Files to Modify
-
-**`validator.py`** - Add proper validation checks to `validate_and_normalize()`
-
-## Validation Checklist
-
-Your implementation should validate:
-
-1. **`q` (search query):**
-   - Must be a string
-   - Maximum length: 1000 characters
-
-2. **`page`:**
-   - Must be an integer
-   - Minimum value: 1
-
-3. **`page_size`:**
-   - Must be an integer
-   - Maximum value: 100
-
-4. **`sort`:**
-   - Must be in `ALLOWED_SORT_FIELDS` (with or without `-` prefix)
-
-5. **`fields`:**
-   - Must be a non-empty list
-   - All fields must be in `ALLOWED_FIELDS`
-
-6. **`filters.level`:**
-   - All levels must be in `ALLOWED_LEVELS`
