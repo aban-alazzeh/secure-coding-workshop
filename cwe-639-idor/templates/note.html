@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>View Note</title>
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,.2);
+    }
+
+    .header {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      color: white;
+      padding: 25px 30px;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .note-content {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 6px;
+      white-space: pre-wrap;
+      margin: 20px 0;
+    }
+
+    .error {
+      background: #f8d7da;
+      padding: 15px;
+      border-left: 4px solid #dc3545;
+      border-radius: 4px;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .note-meta {
+      font-size: 0.9em;
+      color: #666;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      {% if note %}
+        <h1>📄 {{ note.title }}</h1>
+        <p>{{ user.username }}</p>
+      {% else %}
+        <h1>📄 Note</h1>
+        <p>{{ user.username }}</p>
+      {% endif %}
+    </div>
+
+    <div class="content">
+      {% if error %}
+        <div class="error">{{ error }}</div>
+      {% elif note %}
+        <div class="note-content">{{ note.content }}</div>
+        <div class="note-meta">Note ID: {{ note_id }} | Owner: {{ note.owner }}</div>
+      {% endif %}
+
+      <a href="/notes" class="back-link">← Back to notes</a>
+    </div>
+  </div>
+</body>
+</html>
