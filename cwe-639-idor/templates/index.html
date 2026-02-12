@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>My Notes</title>
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,.2);
+    }
+
+    .header {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      color: white;
+      padding: 25px 30px;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .note-item {
+      display: block;
+      padding: 15px;
+      margin-bottom: 10px;
+      background: #f8f9fa;
+      text-decoration: none;
+      color: #333;
+      border-radius: 6px;
+      border-left: 4px solid #667eea;
+    }
+
+    .note-item:hover {
+      background: #667eea;
+      color: white;
+    }
+
+    .note-title {
+      font-weight: 600;
+      font-size: 1.1em;
+    }
+
+    .note-id {
+      font-size: 0.85em;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .note-item:hover .note-id {
+      color: #ddd;
+    }
+
+    .create-btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #28a745;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .create-btn:hover {
+      background: #218838;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📝 My Notes</h1>
+      <p>Logged in as: {{ user.username }}</p>
+    </div>
+
+    <div class="content">
+      <a href="/create" class="create-btn">+ Create New Note</a>
+
+      {% if notes %}
+        {% for note in notes %}
+          <a href="/note?id={{ note.id }}" class="note-item">
+            <div class="note-title">{{ note.title }}</div>
+            <div class="note-id">Note ID: {{ note.id }}</div>
+          </a>
+        {% endfor %}
+      {% else %}
+        <p>No notes yet. Create your first note!</p>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>
