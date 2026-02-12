@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Report Viewer</title>
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,.2);
+    }
+
+    .header {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      color: white;
+      padding: 25px 30px;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    pre {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 6px;
+    }
+
+    .error {
+      background: #f8d7da;
+      padding: 15px;
+      border-left: 4px solid #dc3545;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📄 {{ name }}</h1>
+      <p>{{ user.username }} (role: {{ user.role }})</p>
+    </div>
+
+    <div class="content">
+      {% if error %}
+        <div class="error">{{ error }}</div>
+      {% else %}
+        <pre>{{ content }}</pre>
+      {% endif %}
+
+      <p><a href="/reports">← Back to reports</a></p>
+    </div>
+  </div>
+</body>
+</html>
