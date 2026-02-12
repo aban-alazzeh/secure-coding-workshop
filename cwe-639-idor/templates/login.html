@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>CWE-639 IDOR Lab</title>
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,.2);
+    }
+
+    .header {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
+      font-weight: 600;
+      background: #667eea;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    button:hover {
+      background: #5568d3;
+    }
+
+    .error {
+      margin-top: 15px;
+      background: #f8d7da;
+      padding: 12px;
+      border-left: 4px solid #dc3545;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔓 CWE-639: IDOR</h1>
+      <p>Insecure Direct Object Reference</p>
+    </div>
+
+    <div class="content">
+      <form method="post" action="/login">
+        <label>Username</label>
+        <input name="username" required />
+
+        <label>Password</label>
+        <input name="password" type="password" required />
+
+        <button type="submit">Login</button>
+      </form>
+
+      {% if error %}
+        <div class="error">{{ error }}</div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>
