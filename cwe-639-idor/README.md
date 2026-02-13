@@ -35,11 +35,17 @@ pip install -r requirements.txt
 ```
 
 ## Test Your Solution
+
+Run the tests to verify your fix:
 ```bash
 python -m pytest -q
 ```
 
-**Goal:** All 6 tests should pass.
+**Expected Results:**
+- **Before fix (vulnerable):** 5 passed, 1 failed
+- **After fix (secure):** 6 passed (all tests pass)
+
+The failing test demonstrates the IDOR vulnerability - users can access notes belonging to other users by manipulating the note ID parameter.
 
 ## Run the App
 ```bash
@@ -48,37 +54,63 @@ uvicorn app:app --reload
 
 Visit: `http://127.0.0.1:8000`
 
-**Try these:**
-* **Login as alice:**
-   * `Username: alice`
-   * `Password: alice123`
-   * View your notes (IDs 1, 2)
-   * Try accessing `/note?id=3` (Bob's note - should fail after fix)
-* **Login as bob:**
-   * `Username: bob`
-   * `Password: bob123`
-   * View your notes (IDs 3, 4)
-* **Login as charlie:**
-   * `Username: charlie`
-   * `Password: charlie123`
-   * View your notes (IDs 5, 6)
+**Try these experiments:**
+
+### Test the Vulnerability (Before Fix):
+1. **Login as alice:**
+   - Username: `alice`
+   - Password: `alice123`
+   - View your notes (you should see notes with IDs 1, 2)
+   
+2. **Exploit the IDOR:**
+   - While logged in as alice, manually visit: `/note?id=3`
+   - You can see Bob's note! This should NOT be allowed.
+   - Try `/note?id=5` to see Charlie's note
+
+3. **Verify other users:**
+   - Login as bob (`bob`/`bob123`) - owns notes 3, 4
+   - Login as charlie (`charlie`/`charlie123`) - owns notes 5, 6
+
+### Test Your Fix (After Fix):
+1. Login as alice and try to access `/note?id=3`
+2. You should see: "You are not authorized to view this note."
+3. Alice's own notes (1, 2) should still work normally
+
+## The Vulnerability Location
+
+Look in `app.py` at the `view_note()` function around **line 100**.
+
+The code retrieves and displays notes without checking ownership:
+```python
+else:
+    note = NOTES[id]
+    # No ownership check here!
+```
 
 ## Hints
 
 <details>
 <summary>Hint 1: Object Ownership</summary>
 
-  Every object (note) has an owner. Before allowing access, verify that the currently authenticated user IS the owner of the requested object.
+Every object (note) has an owner. Before allowing access, verify that the currently authenticated user IS the owner of the requested object.
+
+Compare `note["owner"]` with `user["username"]`.
 </details>
 
 <details>
 <summary>Hint 2: Check Before Serving</summary>
 
-  Before displaying note content, compare the note's owner field with the current user's username. If they don't match, deny access.
+Before displaying note content, add a conditional check:
+- If the note's owner matches the current user → allow access
+- If the note's owner does NOT match → deny access with an error message
+
+Don't forget to set `note = None` when denying access to prevent data leakage!
 </details>
 
 <details>
 <summary>Hint 3: Direct Object References</summary>
 
-  Sequential IDs (1, 2, 3...) are predictable. Even if you hide IDs from the UI, attackers can guess them. The real protection is server-side ownership validation.
+Sequential IDs (1, 2, 3...) are predictable. Even if you hide IDs from the UI, attackers can guess them. 
+
+The real protection is **server-side ownership validation** - always verify on the backend that the user owns the resource they're requesting.
 </details>
