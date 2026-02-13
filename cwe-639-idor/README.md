@@ -76,17 +76,6 @@ Visit: `http://127.0.0.1:8000`
 2. You should see: "You are not authorized to view this note."
 3. Alice's own notes (1, 2) should still work normally
 
-## The Vulnerability Location
-
-Look in `app.py` at the `view_note()` function around **line 100**.
-
-The code retrieves and displays notes without checking ownership:
-```python
-else:
-    note = NOTES[id]
-    # No ownership check here!
-```
-
 ## Hints
 
 <details>
